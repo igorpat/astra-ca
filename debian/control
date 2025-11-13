@@ -1,0 +1,24 @@
+Source: python-ca
+Section: net
+Priority: optional
+Maintainer: Igor Patrikeev i.lisyev@google.com>
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 3.9.8
+Homepage: http://astralinux.ru
+
+Package: python3-ca
+Architecture: all
+Conflicts: dogtag-pki, pki-server
+Depends: 
+ ${misc:Depends}, 
+ python3,
+ apache2,
+ libapache2-mod-wsgi-py3,
+ libapache2-mod-lookup-identity,
+ libnss3-tools,
+ python3-ldap,
+ python3-nss,
+ python3-xmltodict
+Description: Certification authority
+ Lightweight certification authority whriten in python3
+

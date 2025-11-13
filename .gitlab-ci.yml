@@ -1,0 +1,6 @@
+---
+variables:
+  ASTRA_TARGET_DISTR: astra-1.8
+include:
+  - project: devops/gitlab-ci
+    file: astra-package.yml
