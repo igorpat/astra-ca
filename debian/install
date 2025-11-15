@@ -4,4 +4,7 @@ astra-ca/wsgi.py usr/share/astra-ca/
 astra_ca/* /usr/lib/python3/dist-packages/astra_ca/
 default.ini /etc/pki/astra-ca/
 pkispawn /usr/sbin
-VERSION /usr/share/pki/
+misc/VERSION /usr/share/pki/
+#misc/CS.cfg /var/lib/pki/pki-tomcat/conf/ca/
+misc/server.xml /etc/pki/pki-tomcat/
+misc/version.sh /usr/share/tomcat9/bin/

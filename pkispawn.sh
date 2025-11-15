@@ -138,6 +138,7 @@ echo -k "$pki_subsystem_key_type"
 echo -g "$pki_subsystem_key_size"
 echo -Z ${pki_subsystem_key_algorithm/with*/}
 }
+
 echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
   certutil -S -d /etc/pki/astra-ca/nssdb -f /etc/pki/astra-ca/nssdb/pwdfile.txt \
     -z /etc/pki/astra-ca/nssdb/noisefile.txt \
@@ -156,7 +157,19 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
     --extAIA \
     -t u,u,u
 
-certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_subsystem_nickname" -a > /etc/pki/astra-ca/subsystem.crt
+certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_subsystem_nickname" -a > /etc/pki/astra-ca/subsystem.crt && 
+
+# -----
+mkdir -p /var/lib/pki/pki-tomcat/alias/
+pk12util -d /etc/pki/astra-ca/nssdb -o /var/lib/pki/pki-tomcat/alias/ca_backup_keys.p12 -n "$pki_subsystem_nickname" \
+    -k /etc/pki/astra-ca/nssdb/pwdfile.txt -w /etc/pki/astra-ca/nssdb/pwdfile.txt
+
+$debug && {
+echo "--List the keys and certificates in ca_backup_keys.p12 file"
+pk12util -l /var/lib/pki/pki-tomcat/alias/ca_backup_keys.p12 -w /etc/pki/astra-ca/nssdb/pwdfile.txt
+echo $? "----"
+}
+# -----
 
 $debug && {
 echo "------------------------------------------------------"
@@ -229,3 +242,8 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
 
 certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_sslserver_nickname" -a > /etc/pki/astra-ca/sslserver.crt
 
+cat >> /var/lib/ipa/sysupgrade/sysupgrade.state << EOF
+[dogtag]
+reindex_task = True
+setup_lwca_key_retieval = True
+EOF
