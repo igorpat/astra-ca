@@ -1,0 +1,32 @@
+[certmap.conf]
+subject_base = O=TESTDOMAIN.TEST
+
+[custodia]
+installed = True
+
+[dogtag]
+reindex_task = True
+setup_lwca_key_retieval = True
+
+[http]
+ocsp_enabled = False
+
+[ssl.conf]
+migrated_to_mod_ssl = True
+
+[winsync]
+passsync_privilege_updated = True
+
+[nis]
+done_recover_from_missing_maps = True
+
+[sidgen]
+config_basedn_updated = True
+
+[dns]
+server_config_to_ldap = True
+
+[ipa]
+data_version = 4.11.3
+platform = debian
+

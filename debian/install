@@ -1,10 +1,18 @@
 apache2/conf-available/astra-ca.conf /etc/apache2/conf-available/
 apache2/sites-available/astra-ca.conf /etc/apache2/sites-available/
-astra-ca/wsgi.py usr/share/astra-ca/
+
+astra-ca/wsgi.py /usr/share/astra-ca/
 astra_ca/* /usr/lib/python3/dist-packages/astra_ca/
 default.ini /etc/pki/astra-ca/
 pkispawn /usr/sbin
+
 misc/VERSION /usr/share/pki/
-#misc/CS.cfg /var/lib/pki/pki-tomcat/conf/ca/
+misc/CS.cfg /var/lib/pki/pki-tomcat/conf/ca/
+misc/password.conf /etc/pki/pki-tomcat/
 misc/server.xml /etc/pki/pki-tomcat/
+misc/password.conf /etc/pki/pki-tomcat/alias/
 misc/version.sh /usr/share/tomcat9/bin/
+misc/sysupgrade.state /var/lib/ipa/sysupgrade/
+misc/pki-tomcat /etc/default/
+
+ldap/*.ldif /etc/pki

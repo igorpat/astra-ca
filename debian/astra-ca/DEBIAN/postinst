@@ -1,0 +1,27 @@
+#!/bin/bash
+
+
+
+set -e
+OUT=/dev/null
+
+if [ "$1" = configure ] ; then
+    if [[ -e /etc/pki/astra-ca/default.ini ]] ; then
+        echo "Существует настроенный CA"
+    fi
+
+    # Взято из pki-server.postinst
+    if ! getent passwd pkiuser; then
+        adduser --quiet --system --home /var/lib/pki \
+          --shell /usr/sbin/nologin --group \
+          --no-create-home --gecos "CA System User" \
+          pkiuser
+    fi
+
+    # Configure Apache2
+    a2ensite astra-ca.conf
+    a2enconf astra-ca.conf
+    echo -e "<IfModule ssl_module>\n\tListen 8443\n</IfModule>\n" >> /etc/apache2/ports.conf
+fi
+
+exit 0

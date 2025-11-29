@@ -11,3 +11,6 @@ override_dh_auto_build:
 
 override_dh_auto_clean:
 	rm --force pkispawn
+
+override_dh_auto_test:
+	for i in *.sh; do bash -n $$i; done

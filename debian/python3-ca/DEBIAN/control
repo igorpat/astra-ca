@@ -1,0 +1,13 @@
+Package: python3-ca
+Source: astra-ca
+Version: 0.1.0
+Architecture: all
+Maintainer: Igor Patrikeev <i.lisyev@google.com>
+Installed-Size: 115
+Depends: python3, apache2, libapache2-mod-wsgi-py3, libapache2-mod-lookup-identity, libnss3-tools, python3-ldap, python3-nss, python3-xmltodict
+Conflicts: dogtag-pki, pki-server
+Section: net
+Priority: optional
+Homepage: http://github.com/igorpat/astra-ca
+Description: Certification authority
+ Lightweight certification authority whriten in python3

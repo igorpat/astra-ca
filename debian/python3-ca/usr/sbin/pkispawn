@@ -55,17 +55,6 @@ fi
 # втащить конфиг в переменные окружения
 #ource <(grep = /etc/pki/astra-ca/default.ini | sed 's/ *= */="/' | sed 's/$/"/')
 source <(grep = ${config} | sed 's/ *= */="/' | sed 's/$/"/')
-
-echo "--- Полученные от FreeIPA пароли ---"
-echo pki_admin_password: $pki_admin_password # 1..8
-echo pki_backup_password: $pki_backup_password # 1..8
-echo pki_client_pkcs12_password: $pki_client_pkcs12_password # 1..8
-echo pki_ds_password: $pki_ds_password # 1..8
-echo pki_security_domain_password: $pki_security_domain_password # пусто
-echo pki_server_database_password: $pki_server_database_password # пусто
-echo pki_ca_signing_cert_path: $pki_ca_signing_cert_path # пусто
-echo pki_ca_signing_csr_path: $pki_ca_signing_csr_path # пусто
-
 # Create NSS DB
     mkdir -v -p /etc/pki/astra-ca/nssdb
     cat /dev/urandom | tr -dc A-Za-z0-9 | head -c20 > /etc/pki/astra-ca/nssdb/pwdfile.txt
@@ -172,14 +161,12 @@ certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_subsystem_nickname" -a > /etc/pk
 
 # -----
 mkdir -p /var/lib/pki/pki-tomcat/alias/
-# TODO: вставить пароль на контейнер p12 $pki_client_pkcs12_password
 pk12util -d /etc/pki/astra-ca/nssdb -o /var/lib/pki/pki-tomcat/alias/ca_backup_keys.p12 -n "$pki_subsystem_nickname" \
-    -k /etc/pki/astra-ca/nssdb/pwdfile.txt -W $pki_client_pkcs12_password #/etc/pki/astra-ca/nssdb/pwdfile.txt
-
+    -k /etc/pki/astra-ca/nssdb/pwdfile.txt -w /etc/pki/astra-ca/nssdb/pwdfile.txt
 
 $debug && {
 echo "--List the keys and certificates in ca_backup_keys.p12 file"
-pk12util -l /var/lib/pki/pki-tomcat/alias/ca_backup_keys.p12 -W $pki_client_pkcs12_password
+pk12util -l /var/lib/pki/pki-tomcat/alias/ca_backup_keys.p12 -w /etc/pki/astra-ca/nssdb/pwdfile.txt
 echo $? "----"
 }
 # -----
@@ -217,7 +204,6 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
     -t u,u,u
 
 certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_audit_signing_nickname" -a > /etc/pki/astra-ca/audit_signing.crt
-echo "certutil -L ->" $?
 
 $debug && {
 echo "------------------------------------------------------"
@@ -255,72 +241,12 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
     -t u,u,u
 
 certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_sslserver_nickname" -a > /etc/pki/astra-ca/sslserver.crt
-echo "certutil -S ->" $?
 
-$debug && {
-echo "------------------------------------------------------"
-echo "Create ldap db"
-echo "------------------------------------------------------"
-echo pki_ds_base_dn: $pki_ds_base_dn # o=ipaca
-echo pki_ds_bind_dn: $pki_ds_bind_dn # cn=Directory Manager
-echo pki_ds_password: $pki_ds_password # 1..8
-}
-
-
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# ipaca, ldbm database, plugins, config
-dn: ${pki_ds_base_dn},cn=ldbm database,cn=plugins,cn=config
-cn: ipaca
-objectClass: top
-objectClass: extensibleObject
-objectClass: nsBackendInstance
-nsslapd-suffix: ${pki_ds_base_dn}
-nsslapd-cachesize: -1
-nsslapd-cachememsize: 268435456
-nsslapd-readonly: off
-nsslapd-require-index: off
-nsslapd-require-internalop-index: off
-nsslapd-dncachememsize: 67108864
-nsslapd-directory: /var/lib/dirsrv/slapd-TESTDOMAIN-TEST/db/ipaca
+cat >> /var/lib/ipa/sysupgrade/sysupgrade.state << EOF
+[dogtag]
+reindex_task = True
+setup_lwca_key_retieval = True
 EOF
-echo "ldapadd 1 ->" $?
-echo "----------------"
-
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# config
-dn: cn=config
-changetype: modify
-add: nsslapd-backendconfig
-nsslapd-backendconfig: cn=conifg,o=ipaca,cn=ldbm database,cn=plugins,cn=config
-EOF
-echo "ldapadd config 2 ->" $?
-echo "----------------"
-
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# config
-dn: cn=config
-changetype: modify
-add: nsslapd-backendconfig
-#nsslapd-backendconfig: cn=conifg,o=ipaca,cn=ldbm database,cn=plugins,cn=config
-EOF
-echo "ldapadd config 3 ->" $?
-echo "----------------"
-
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# o\3Dipaca, mapping tree, config
-dn: cn=o\3Dipaca,cn=mapping tree,cn=config
-cn: ${pki_ds_base_dn}
-nsslapd-backend: ipaca
-nsslapd-state: Backend
-objectClass: top
-objectClass: extensibleObject
-objectClass: nsMappingTree
-EOF
-echo "ldapadd 4 ->" $?
-echo "----------------"
-sed -e "s/{rootSuffix}/$pki_ds_base_dn/g" /etc/pki/db.ldif | ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password
-echo "ldapadd db.ldif 4 ->" $?
-
 
 
 

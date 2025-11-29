@@ -1,0 +1,68 @@
+# --- BEGIN COPYRIGHT BLOCK ---
+# Copyright (C) 2012 Red Hat, Inc.
+# All rights reserved.
+# Modifications: configuration parameters
+# --- END COPYRIGHT BLOCK ---
+
+# This file contains instance-specific configuration.
+
+# Default NSS DB type is loaded from /usr/share/pki/etc/tomcat.conf
+
+# Where your java installation lives
+JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+
+# Where your tomcat installation lives
+CATALINA_BASE="/var/lib/pki/pki-tomcat"
+
+# Instance tmp dir
+CATALINA_TMPDIR=/var/lib/pki/pki-tomcat/temp
+
+# NOTE: JAVA_OPTS is now only read once.  All desired settings must be concatenated
+# into a single line.
+#
+# Some parameters you might want to add are:
+# - parameters to the JVM like 
+#   -Xminf0.1 -Xmaxf0.3
+# - parameters to set java.library.path for libtcnative.so
+#   -Djava.library.path=/usr/lib
+# - parameters to run a java debugger (e. g. - 'eclipse')
+#   -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Djava.awt.headless=true -Xmx128M
+JAVA_OPTS="-Dcom.redhat.fips=false"
+
+# What user should run tomcat
+TOMCAT_USER="pkiuser"
+
+# You can change your tomcat locale here
+#LANG="en_US"
+
+# Run tomcat under the Java Security Manager
+SECURITY_MANAGER="true"
+
+# Time to wait in seconds, before killing process
+#SHUTDOWN_WAIT="30"
+
+# Whether to annoy the user with "attempting to shut down" messages or not
+#SHUTDOWN_VERBOSE="false"
+
+# Set the TOMCAT_PID location
+CATALINA_PID="/var/run/pki/tomcat/pki-tomcat.pid"
+
+# Set the tomcat log file
+TOMCAT_LOG="/var/log/pki/pki-tomcat/tomcat-initd.log"
+
+# Connector port is 8080 for this tomcat instance
+#CONNECTOR_PORT="8080"
+
+# If you wish to further customize your tomcat environment,
+# put your own definitions here
+# (i.e. LD_LIBRARY_PATH for some jdbc drivers)
+
+PKI_VERSION=11.2.1
+
+# Debian settings
+TOMCAT_USER="pkiuser"
+TOMCAT_SECURITY="true"
+
+# Use Nuxwdog to start server
+USE_NUXWDOG="false"
+NSS_ENABLE_PKIX_VERIFY=1

@@ -1,12 +1,12 @@
-Source: python-ca
+Source: astra-ca
 Section: net
 Priority: optional
-Maintainer: Igor Patrikeev i.lisyev@google.com>
+Maintainer: Igor Patrikeev <i.lisyev@google.com>
 Build-Depends: debhelper-compat (= 12)
 Standards-Version: 3.9.8
-Homepage: http://astralinux.ru
+Homepage: http://github.com/igorpat/astra-ca
 
-Package: python3-ca
+Package: astra-ca
 Architecture: all
 Conflicts: dogtag-pki, pki-server
 Depends: 

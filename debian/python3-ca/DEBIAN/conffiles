@@ -1,0 +1,5 @@
+/etc/apache2/conf-available/astra-ca.conf
+/etc/apache2/sites-available/astra-ca.conf
+/etc/pki/astra-ca/default.ini
+/etc/pki/pki-tomcat/password.conf
+/etc/pki/pki-tomcat/server.xml

@@ -1,2 +1,2 @@
-# python-ca
+# astra-ca
 Lightweight certification authority whriten in python3

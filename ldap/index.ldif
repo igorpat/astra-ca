@@ -1,0 +1,257 @@
+dn: cn=revokedby,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: revokedby
+
+dn: cn=issuedby,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: issuedby
+
+dn: cn=publicKeyData,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: publicKeyData
+
+dn: cn=clientId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: clientId
+
+dn: cn=dataType,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: dataType
+
+dn: cn=status,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: status
+
+dn: cn=description,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: description
+
+dn: cn=serialno,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: serialno
+
+dn: cn=metaInfo,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: metaInfo
+
+dn: cn=certstatus,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: certstatus
+
+dn: cn=requestid,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: requestid
+
+dn: cn=requesttype,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: requesttype
+
+dn: cn=requeststate,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: requeststate
+
+dn: cn=requestowner,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: requestowner
+
+dn: cn=notbefore,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: notbefore
+
+dn: cn=notafter,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: notafter
+
+dn: cn=duration,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: duration
+
+dn: cn=dateOfCreate,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: dateOfCreate
+
+dn: cn=revokedOn,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: revokedOn
+
+dn: cn=archivedBy,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsSystemindex: false
+cn: archivedBy
+
+dn: cn=ownername,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: ownername
+
+dn: cn=issuername,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: issuername
+
+dn: cn=subjectname,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: subjectname
+
+dn: cn=requestsourceid,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: requestsourceid
+
+dn: cn=revInfo,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: revInfo
+
+dn: cn=extension,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsindexType: pres
+nsindexType: sub
+nsSystemindex: false
+cn: extension
+
+dn: cn=acmeExpires,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeExpires
+
+dn: cn=acmeAccountId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeAccountId
+
+dn: cn=acmeStatus,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeStatus
+
+dn: cn=acmeAuthorizationId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeAuthorizationId
+
+dn: cn=acmeIdentifier,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeIdentifier
+
+dn: cn=acmeCertificateId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: eq
+nsSystemindex: false
+cn: acmeCertificateId
+
+dn: cn=acmeAuthorizationWildcard,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsindexType: pres
+nsindexType: eq
+nsSystemindex: false
+cn: acmeAuthorizationWildcard

@@ -1,0 +1,36 @@
+# ipaca, ldbm database, plugins, config
+dn: cn=ipaca,cn=ldbm database,cn=plugins,cn=config
+cn: ipaca
+objectClass: top
+objectClass: extensibleObject
+objectClass: nsBackendInstance
+nsslapd-suffix: o=ipaca
+nsslapd-cachesize: -1
+nsslapd-cachememsize: 268435456
+nsslapd-readonly: off
+nsslapd-require-index: off
+nsslapd-require-internalop-index: off
+nsslapd-dncachememsize: 67108864
+nsslapd-directory: /var/lib/dirsrv/slapd-TESTDOMAIN-TEST/db/ipaca
+
+# index, ipaca, ldbm database, plugins, config
+#dn: cn=index,cn=ipaca,cn=ldbm database,cn=plugins,cn=config
+#cn: index
+#objectClass: top
+#objectClass: extensibleObject
+
+# config
+dn: cn=config
+changetype: modify
+add: nsslapd-backendconfig
+#nsslapd-backendconfig: cn=conifg,cn=ipaca,cn=ldbm database,cn=plugins,cn=config
+
+# o\3Dipaca, mapping tree, config
+dn: cn=o\3Dipaca,cn=mapping tree,cn=config
+cn: o=ipaca
+nsslapd-backend: ipaca
+nsslapd-state: backend
+objectClass: top
+objectClass: extensibleObject
+objectClass: nsMappingTree
+
