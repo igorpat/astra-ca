@@ -217,7 +217,7 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
     -t u,u,u
 
 certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_audit_signing_nickname" -a > /etc/pki/astra-ca/audit_signing.crt
-echo "certutil -L ->" $?
+$debug && echo "certutil -L ->" $?
 
 $debug && {
 echo "------------------------------------------------------"
@@ -255,72 +255,28 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
     -t u,u,u
 
 certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_sslserver_nickname" -a > /etc/pki/astra-ca/sslserver.crt
-echo "certutil -S ->" $?
+$debug && echo "certutil -S ->" $?
 
 $debug && {
-echo "------------------------------------------------------"
-echo "Create ldap db"
-echo "------------------------------------------------------"
-echo pki_ds_base_dn: $pki_ds_base_dn # o=ipaca
-echo pki_ds_bind_dn: $pki_ds_bind_dn # cn=Directory Manager
-echo pki_ds_password: $pki_ds_password # 1..8
+   echo "------------------------------------------------------"
+   echo "Create ldap db"
+   echo "------------------------------------------------------"
+   echo pki_ds_base_dn: $pki_ds_base_dn # o=ipaca
+   echo pki_ds_bind_dn: $pki_ds_bind_dn # cn=Directory Manager
+   echo pki_ds_password: $pki_ds_password # 1..8
 }
 
 
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# ipaca, ldbm database, plugins, config
-dn: ${pki_ds_base_dn},cn=ldbm database,cn=plugins,cn=config
-cn: ipaca
-objectClass: top
-objectClass: extensibleObject
-objectClass: nsBackendInstance
-nsslapd-suffix: ${pki_ds_base_dn}
-nsslapd-cachesize: -1
-nsslapd-cachememsize: 268435456
-nsslapd-readonly: off
-nsslapd-require-index: off
-nsslapd-require-internalop-index: off
-nsslapd-dncachememsize: 67108864
-nsslapd-directory: /var/lib/dirsrv/slapd-TESTDOMAIN-TEST/db/ipaca
-EOF
-echo "ldapadd 1 ->" $?
-echo "----------------"
+ldbm.py $pki_ds_base_dn "$pki_ds_bind_dn" $pki_ds_password
+$debug && echo "ldbm.py ->" $?
 
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# config
-dn: cn=config
-changetype: modify
-add: nsslapd-backendconfig
-nsslapd-backendconfig: cn=conifg,o=ipaca,cn=ldbm database,cn=plugins,cn=config
-EOF
-echo "ldapadd config 2 ->" $?
-echo "----------------"
 
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# config
-dn: cn=config
-changetype: modify
-add: nsslapd-backendconfig
-#nsslapd-backendconfig: cn=conifg,o=ipaca,cn=ldbm database,cn=plugins,cn=config
-EOF
-echo "ldapadd config 3 ->" $?
-echo "----------------"
+ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password -f /etc/pki/schema.ldif
+$debug && echo "ldapadd schema.ldif ->" $?
 
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password << EOF
-# o\3Dipaca, mapping tree, config
-dn: cn=o\3Dipaca,cn=mapping tree,cn=config
-cn: ${pki_ds_base_dn}
-nsslapd-backend: ipaca
-nsslapd-state: Backend
-objectClass: top
-objectClass: extensibleObject
-objectClass: nsMappingTree
-EOF
-echo "ldapadd 4 ->" $?
-echo "----------------"
 sed -e "s/{rootSuffix}/$pki_ds_base_dn/g" /etc/pki/db.ldif | ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password
-echo "ldapadd db.ldif 4 ->" $?
+$debug && echo "ldapadd db.ldif ->" $?
 
-
-
+ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password -f /etc/pki/acl.ldif
+$debug && echo "ldapadd acl.ldif ->" $?
 

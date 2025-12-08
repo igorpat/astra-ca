@@ -4,12 +4,11 @@
 /etc/pki/acl.ldif
 /etc/pki/astra-ca/default.ini
 /etc/pki/db.ldif
-/etc/pki/db_create.ldif
 /etc/pki/index.ldif
 /etc/pki/indextasks.ldif
 /etc/pki/pki-tomcat/alias/password.conf
 /etc/pki/pki-tomcat/password.conf
 /etc/pki/pki-tomcat/server.xml
-/etc/pki/result.ldif
+/etc/pki/schema.ldif
 /etc/pki/vlv.ldif
 /etc/pki/vlvtasks.ldif

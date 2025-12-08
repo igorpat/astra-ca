@@ -9,6 +9,7 @@
 ./astra_ca/test_mod_ssl.py
 ./default.ini
 ./pkispawn
+./ldbm.py
 ./misc/VERSION
 ./misc/CS.cfg
 ./misc/password.conf
@@ -19,9 +20,8 @@
 ./misc/pki-tomcat
 ./ldap/acl.ldif
 ./ldap/db.ldif
-./ldap/db_create.ldif
 ./ldap/index.ldif
 ./ldap/indextasks.ldif
-./ldap/result.ldif
+./ldap/schema.ldif
 ./ldap/vlv.ldif
 ./ldap/vlvtasks.ldif

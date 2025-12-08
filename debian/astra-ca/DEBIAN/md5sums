@@ -4,7 +4,8 @@ f3f428989add0e4ba6d35a7d69b8315d  usr/lib/python3/dist-packages/astra_ca/mod_lda
 0de62b818c0737e4235ab45315e8d238  usr/lib/python3/dist-packages/astra_ca/mod_ssl.py
 449d9d79da04f9297dab1265daa51ba6  usr/lib/python3/dist-packages/astra_ca/test_mod_nss.py
 6ef1ed8a64e3e7ec35096f1310cbfd06  usr/lib/python3/dist-packages/astra_ca/test_mod_ssl.py
-746ff16acf5bf0343b191aa601df10f8  usr/sbin/pkispawn
+a1c85aaa7022c4248ab20ef75edebd48  usr/sbin/ldbm.py
+54465b03e745ee41fb920db1b943d4b1  usr/sbin/pkispawn
 16dd9638b9a35c911961fc4ce3df77d8  usr/share/astra-ca/wsgi.py
 6dbfc2412aa94b334a67808367944bd1  usr/share/doc/astra-ca/changelog.gz
 4fc3b42a5977fe5fa451e4867ab69921  usr/share/doc/astra-ca/copyright
