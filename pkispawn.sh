@@ -41,10 +41,11 @@ while [ -n "$1" ]; do
   esac
   shift
 done
-echo debug=$debug
-echo susbsystem=$subsystem
-echo config=$config
-
+$debug && {
+    echo debug=$debug
+    echo susbsystem=$subsystem
+    echo config=$config
+}
 if [[ -f $config ]]; then
     cp $config /etc/pki/astra-ca/$(basename ${config}).ini
     config=/etc/pki/astra-ca/$(basename ${config}).ini
@@ -53,19 +54,19 @@ else
     config=/etc/pki/astra-ca/default.ini
 fi
 # втащить конфиг в переменные окружения
-#ource <(grep = /etc/pki/astra-ca/default.ini | sed 's/ *= */="/' | sed 's/$/"/')
 source <(grep = ${config} | sed 's/ *= */="/' | sed 's/$/"/')
 
-echo "--- Полученные от FreeIPA пароли ---"
-echo pki_admin_password: $pki_admin_password # 1..8
-echo pki_backup_password: $pki_backup_password # 1..8
-echo pki_client_pkcs12_password: $pki_client_pkcs12_password # 1..8
-echo pki_ds_password: $pki_ds_password # 1..8
-echo pki_security_domain_password: $pki_security_domain_password # пусто
-echo pki_server_database_password: $pki_server_database_password # пусто
-echo pki_ca_signing_cert_path: $pki_ca_signing_cert_path # пусто
-echo pki_ca_signing_csr_path: $pki_ca_signing_csr_path # пусто
-
+$debug && {
+   echo "--- Полученные от FreeIPA пароли ---"
+   echo pki_admin_password: $pki_admin_password # 1..8
+   echo pki_backup_password: $pki_backup_password # 1..8
+   echo pki_client_pkcs12_password: $pki_client_pkcs12_password # 1..8
+   echo pki_ds_password: $pki_ds_password # 1..8
+   echo pki_security_domain_password: $pki_security_domain_password # пусто
+   echo pki_server_database_password: $pki_server_database_password # пусто
+   echo pki_ca_signing_cert_path: $pki_ca_signing_cert_path # пусто
+   echo pki_ca_signing_csr_path: $pki_ca_signing_csr_path # пусто
+}
 # Create NSS DB
     mkdir -v -p /etc/pki/astra-ca/nssdb
     cat /dev/urandom | tr -dc A-Za-z0-9 | head -c20 > /etc/pki/astra-ca/nssdb/pwdfile.txt
@@ -277,6 +278,35 @@ $debug && echo "ldapadd schema.ldif ->" $?
 sed -e "s/{rootSuffix}/$pki_ds_base_dn/g" /etc/pki/db.ldif | ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password
 $debug && echo "ldapadd db.ldif ->" $?
 
-ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password -f /etc/pki/acl.ldif
+sed -e "s/{rootSuffix}/$pki_ds_base_dn/g" /etc/pki/acl.ldif | ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password
 $debug && echo "ldapadd acl.ldif ->" $?
 
+
+$debug && {
+echo "------------------------------------------------------"
+echo "Generating httpd Server certificate with NSS"
+echo "------------------------------------------------------"
+echo CA_CKID=$CA_SKID
+echo OCSP=$OCSP
+echo -c "$pki_ca_signing_nickname"
+echo -8 $pki_hostname ?
+}
+openssl genrsa -out httpd.key 2048
+req -key httpd.key -new -sha256 -subj "/CN=ipasrv.testdomain.test/O=TESTDOMAIN.TEST" -out httpd.csr -outform DER
+
+echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
+  certutil -C -d /etc/pki/astra-ca/nssdb  \
+    -f /etc/pki/astra-ca/nssdb/pwdfile.txt \
+    -i httpd.csr \
+    -o httpd.crt \
+    -c "$pki_ca_signing_nickname" \
+    -Z SHA256 \
+    -v 24 \
+    -m 9 \
+    --keyUsage critical,dataEncipherment,digitalSignature,keyEncipherment,nonRepudiation \
+    --extKeyUsage serverAuth,clientAuth \
+    -8 "$pki_security_domain_hostname???",ipa-ca.testdomain.test \
+    -3 \
+    --extAIA
+
+$debug && echo "certutil -C ->" $?
