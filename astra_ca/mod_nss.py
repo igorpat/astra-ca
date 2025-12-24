@@ -163,6 +163,7 @@ def new_user_cert_der(csr_pem, serial, issuer_id, valid=12):
         "-c": issuer_nickname,
         "-i": "/dev/shm/tmpcsr.der",
         "-o": "/dev/shm/tmpcert.der",
+        "--keyUsage": "digitalSignature,nonRepudiation,keyEncipherment,critical",
         "--extKeyUsage": "clientAuth,critical",
         "-m": serial,
         "-v": valid,
@@ -174,7 +175,9 @@ def new_user_cert_der(csr_pem, serial, issuer_id, valid=12):
     cmd = certutil_from_dict(cmd)
     logger.info("+++cmd:%s", cmd)
     os.popen(cmd, 'r')
-
+    for i in range(100):
+        if os.access("/dev/shm/tmpcert.der", os.F_OK):
+            break
     with open("/dev/shm/tmpcert.der", "rb") as cert_file:
         cert_data = cert_file.read()
     logger.info(">--- cert_data: %s", cert_data)
