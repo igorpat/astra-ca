@@ -1,0 +1,9 @@
+[Unit]
+Description=temporary pki tomcat service
+ [Service]
+User=root
+ExecStart=/usr/bin/pki-tomcatd.sh
+ 
+[Install]
+ # здесь используется ключи времени с указанием цели или другой службы
+ #WantedBy=graphical.target

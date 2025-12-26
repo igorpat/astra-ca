@@ -205,6 +205,11 @@ def application(environ, start_response):
                 #logger.debug("--- response %s", response) # --- response {'total': 1, 'entries':....
                 start_response('200 OK', [('Content-Type', 'application/json')])
                 return [json.dumps(response).encode()]
+    elif environ.get('REQUEST_URI',"") == "/ca/admin/ca/getStatus":
+        # Для ipa-pki-wait-running, systemd конфига, который проверяет, что демон pki-tomcatd запущен и отвечает
+        start_response('200 OK', [('Content-Type', 'application/json')])
+        body = {'Response': {'State': '1', 'Type': 'CA', 'Status': 'running', 'Version': '11.2.1', 'ProductVersion': 'Astra Certificate System'}}
+        return [json.dumps(body).encode()]
     else:
         # По умолчанию
         start_response('200 OK', [('Content-Type', 'text/html')])

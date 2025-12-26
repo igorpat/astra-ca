@@ -49,7 +49,7 @@ $debug && {
 if [[ -f $config ]]; then
     cp $config /etc/pki/astra-ca/$(basename ${config}).ini
     config=/etc/pki/astra-ca/$(basename ${config}).ini
-    echo $config ==
+    echo config file: $config
 else
     config=/etc/pki/astra-ca/default.ini
 fi
@@ -173,7 +173,6 @@ certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_subsystem_nickname" -a > /etc/pk
 
 # -----
 mkdir -p /var/lib/pki/pki-tomcat/alias/
-# TODO: вставить пароль на контейнер p12 $pki_client_pkcs12_password
 pk12util -d /etc/pki/astra-ca/nssdb -o /var/lib/pki/pki-tomcat/alias/ca_backup_keys.p12 -n "$pki_subsystem_nickname" \
     -k /etc/pki/astra-ca/nssdb/pwdfile.txt -W $pki_client_pkcs12_password #/etc/pki/astra-ca/nssdb/pwdfile.txt
 
@@ -181,9 +180,9 @@ pk12util -d /etc/pki/astra-ca/nssdb -o /var/lib/pki/pki-tomcat/alias/ca_backup_k
 $debug && {
 echo "--List the keys and certificates in ca_backup_keys.p12 file"
 pk12util -l /var/lib/pki/pki-tomcat/alias/ca_backup_keys.p12 -W $pki_client_pkcs12_password
-echo $? "----"
+echo "pk12util -> " $?
 }
-# -----
+
 
 $debug && {
 echo "------------------------------------------------------"
@@ -218,12 +217,12 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
     -t u,u,u
 
 certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_audit_signing_nickname" -a > /etc/pki/astra-ca/audit_signing.crt
-$debug && echo "certutil -L ->" $?
+echo "certutil -L ->" $?
 
 $debug && {
-echo "------------------------------------------------------"
-echo "Generating SSL Server certificate with NSS"
-echo "------------------------------------------------------"
+echo "---------------------------------"
+echo "Generating SSL Server certificate"
+echo "---------------------------------"
 echo CA_CKID=$CA_SKID
 echo OCSP=$OCSP
 echo -s "$pki_sslserver_subject_dn"
@@ -256,12 +255,12 @@ echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
     -t u,u,u
 
 certutil -L -d /etc/pki/astra-ca/nssdb -n "$pki_sslserver_nickname" -a > /etc/pki/astra-ca/sslserver.crt
-$debug && echo "certutil -S ->" $?
+echo "certutil -S ->" $?
 
 $debug && {
-   echo "------------------------------------------------------"
+   echo "--------------"
    echo "Create ldap db"
-   echo "------------------------------------------------------"
+   echo "--------------"
    echo pki_ds_base_dn: $pki_ds_base_dn # o=ipaca
    echo pki_ds_bind_dn: $pki_ds_bind_dn # cn=Directory Manager
    echo pki_ds_password: $pki_ds_password # 1..8
@@ -269,44 +268,69 @@ $debug && {
 
 
 ldbm.py $pki_ds_base_dn "$pki_ds_bind_dn" $pki_ds_password
-$debug && echo "ldbm.py ->" $?
+echo "ldbm.py ->" $?
 
 
 ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password -f /etc/pki/schema.ldif
-$debug && echo "ldapadd schema.ldif ->" $?
+echo "ldapadd schema.ldif ->" $?
 
 sed -e "s/{rootSuffix}/$pki_ds_base_dn/g" /etc/pki/db.ldif | ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password
-$debug && echo "ldapadd db.ldif ->" $?
+echo "ldapadd db.ldif ->" $?
 
 sed -e "s/{rootSuffix}/$pki_ds_base_dn/g" /etc/pki/acl.ldif | ldapadd -v -D "$pki_ds_bind_dn" -w $pki_ds_password
-$debug && echo "ldapadd acl.ldif ->" $?
+echo "ldapadd acl.ldif ->" $?
 
 
 $debug && {
-echo "------------------------------------------------------"
-echo "Generating httpd Server certificate with NSS"
-echo "------------------------------------------------------"
-echo CA_CKID=$CA_SKID
-echo OCSP=$OCSP
-echo -c "$pki_ca_signing_nickname"
-echo -8 $pki_hostname ?
+echo "-----------------------------------"
+echo "Generating httpd Server certificate"
+echo "-----------------------------------"
+echo CA_CKID=$CA_SKID # 0xcd0404bce8bd875b1e533e0458e3abd6955ab176
+echo OCSP=$OCSP # http://ipa-ca.testdomain.test/ca/ocsp
+echo -c "$pki_ca_signing_nickname" # caSigningCert cert-pki-ca
+echo ${pki_dns_domainname^^} # TESTDOMAIN.TEST
+echo ${pki_hostname} # ipasrv.testdomain.test
+tmp=${OCSP#*//}
+ocsp_hostname=${tmp%%/*} # ipa-ca.testdomain.test
+echo -8 $pki_security_domain_hostname,$ocsp_hostname # ipasrv.testdomain.test,ipa-ca.testdomain.test
+
 }
 openssl genrsa -out httpd.key 2048
-req -key httpd.key -new -sha256 -subj "/CN=ipasrv.testdomain.test/O=TESTDOMAIN.TEST" -out httpd.csr -outform DER
+openssl req -key httpd.key -new -sha256 -subj "/O=${pki_dns_domainname^^}/CN=${pki_hostname}" -out httpd.csr -outform DER \
+    -addext "subjectKeyIdentifier = hash"
+#-addext "subjectAltName = otherName:1.3.6.1.5.2.2;UTF8:HTTP/ipasrv.testdomain.test@TESTDOMAIN.TEST"
 
 echo -e "y\n${CA_SKID}\n\n\n\n2\n7\n${OCSP}\n\n\n\n" | \
   certutil -C -d /etc/pki/astra-ca/nssdb  \
     -f /etc/pki/astra-ca/nssdb/pwdfile.txt \
     -i httpd.csr \
-    -o httpd.crt \
+    -o httpd.der \
     -c "$pki_ca_signing_nickname" \
     -Z SHA256 \
     -v 24 \
     -m 9 \
     --keyUsage critical,dataEncipherment,digitalSignature,keyEncipherment,nonRepudiation \
     --extKeyUsage serverAuth,clientAuth \
-    -8 "$pki_security_domain_hostname???",ipa-ca.testdomain.test \
+    -8 "$pki_security_domain_hostname",$ocsp_hostname \
     -3 \
-    --extAIA
+    --extAIA \
+echo "certutil -C ->" $?
+# NOTE: возможно сгенерировать сертификат целиком с исп. -S
+openssl x509 -in httpd.der -out httpd.crt -outform PEM
+echo $?
+cp httpd.crt /var/lib/ipa/certs/httpd.crt
+echo $?
+cp httpd.key /var/lib/ipa/private/httpd.key
+echo $?
+cp /etc/pki/astra-ca/ca_signing.crt /etc/ipa/ca.crt
+echo $?
 
-$debug && echo "certutil -C ->" $?
+mkdir -p /var/lib/pki/pki-tomcat/conf/ca/
+cp /etc/pki/astra-ca/CS.cfg /var/lib/pki/pki-tomcat/conf/ca/
+echo "copy CS.cfg" $?
+
+systemctl stop apache2
+echo -e "<IfModule ssl_module>\n\tListen 8443\n</IfModule>\n\n" >> /etc/apache2/ports.conf
+echo -e "Listen 8080\n" >> /etc/apache2/ports.conf
+systemctl start apache2
+echo start apache2 $?
