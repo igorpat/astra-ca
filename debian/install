@@ -1,5 +1,6 @@
 apache2/conf-available/astra-ca.conf /etc/apache2/conf-available/
 apache2/sites-available/astra-ca.conf /etc/apache2/sites-available/
+apache2/getStatus /var/www/html/
 #apache2/ports.conf /etc/apache2/ - нельзя заменять файлы другого пакета
 
 astra-ca/wsgi.py /usr/share/astra-ca/

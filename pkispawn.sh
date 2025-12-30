@@ -330,7 +330,7 @@ cp /etc/pki/astra-ca/CS.cfg /var/lib/pki/pki-tomcat/conf/ca/
 echo "copy CS.cfg" $?
 
 systemctl stop apache2
-echo -e "<IfModule ssl_module>\n\tListen 8443\n</IfModule>\n\n" >> /etc/apache2/ports.conf
-echo -e "Listen 8080\n" >> /etc/apache2/ports.conf
+echo -e "#astra-ca pkispawn\n<IfModule ssl_module>\n\tListen 8443\n</IfModule>\n" >> /etc/apache2/ports.conf
+echo -e "#astra-ca pkispawn\nListen 8080\n" >> /etc/apache2/ports.conf
 systemctl start apache2
 echo start apache2 $?

@@ -21,9 +21,12 @@ if [ "$1" = configure ] ; then
     # Configure Apache2
     a2ensite astra-ca.conf
     a2enconf astra-ca.conf
-    #echo -e "<IfModule ssl_module>\n\tListen 8443\n</IfModule>\n\n" >> /etc/apache2/ports.conf
-    echo -e "<IfModule ssl_module>\n\tListen 8009\n</IfModule>\n\n" >> /etc/apache2/ports.conf
-    #echo -e "Listen 8080" >> /etc/apache2/ports.conf
+    echo -e "\n#astra-ca postinst\n<IfModule ssl_module>\n\tListen 8009\n</IfModule>\n" >> /etc/apache2/ports.conf
+
+    # IPA requires ports 8080 and 8443 for PKI, but one or more are currently in use.
+    #echo -e "#astra-ca\n<IfModule ssl_module>\n\tListen 8443\n</IfModule>\n" >> /etc/apache2/ports.conf
+    #echo -e "#astra-ca\nListen 8080\n" >> /etc/apache2/ports.conf
+    # поэтому перенoс в pkispawn
 fi
 
 exit 0
