@@ -8,18 +8,40 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization, hashes
 import base64
 import logging
+from cryptography.hazmat.primitives.serialization import pkcs7
 
 logger = logging.getLogger(os.path.basename(__file__))
 
-def cert_der2pem(der):
-    """Конвертировать сертификат из формата DER в PEM"""
-    cert_x509 = x509.load_der_x509_certificate(der, backend=default_backend())
-    return cert_x509.public_bytes(serialization.Encoding.PEM)
+
+# Больше не используется, раньше вызывалась из nss.get_cert_chain_pem
+#->def cert_der2pem(der):
+#->    """Конвертировать сертификат из формата DER в PEM"""
+#->    cert_x509 = x509.load_der_x509_certificate(der, backend=default_backend())
+#->    return cert_x509.public_bytes(serialization.Encoding.PEM)
+
+
+#->def cert_chain2pkcs7(cert_chain, outform="PEM"):
+#->"""Закодировать цепочку сертификатов в формат PKCS#7 (PEM и DER)"""
+#->    if form == "PEM":
+#->        return pkcs7.serialize_certificates(cert_chain, serialization.Encoding.PEM) # b'-----BEGIN PKCS7-----\nMIIGlAYJK ...
+#->    elif form == "DER":
+#->        return pkcs7.serialize_certificates(cert_chain, serialization.Encoding.DER)
+#->    else:
+#->        raise ValueError("Аргумент form должен иметь значение 'PEM' или 'DER'")
+
+def get_csr_obj(pem):
+    """ Получить объект запроса на сертификат"""
+    if type(pem) is str:
+        pem = pem.encode()
+    return x509.load_pem_x509_csr(pem,  backend=default_backend())
 
 def csr_pem2der(pem):
     """Конвертировать запрос на выпуск сертификата из формата PEM в DER"""
-    csr_x509 = x509.load_pem_x509_csr(pem.encode(), backend=default_backend())
-    return csr_x509.public_bytes(serialization.Encoding.DER)
+    #if type(pem) is str:
+    #    pem = pem.encode()
+    #csr_obj = x509.load_pem_x509_csr(pem, backend=default_backend())
+    csr_obj = get_csr_obj(pem)
+    return csr_obj.public_bytes(serialization.Encoding.DER)
 
 def get_cert_key_len(der):
     """Получить длинну публичного ключа сертификата"""
@@ -32,12 +54,6 @@ def get_cert_obj(der):
     cert_x509 = x509.load_der_x509_certificate(der, backend=default_backend())
     return cert_x509
 
-def get_csr_obj(pem):
-    """ Получить объект запроса на сертификат"""
-    if type(pem) is str:
-        pem = pem.encode()
-    csr_x509 = x509.load_pem_x509_csr(pem,  backend=default_backend())
-    return csr_x509
 
 def get_public_bytes(obj, form="PEM"):
     """Возвращает сеариализированный объект"""
@@ -82,6 +98,7 @@ def get_email_from_subject(cert_obj):
         if key == 'emailAddress':
            return value
     return None
+
 def get_email_from_ext(cert_obj):
     """Получить адрес ЭП из расширения SubjectAlternativeName сертификата"""
     for ext in cert_obj.extensions:

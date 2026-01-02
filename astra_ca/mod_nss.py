@@ -13,7 +13,8 @@ import astra_ca.mod_ssl as mod_ssl
 
 logger = logging.getLogger(os.path.basename(__file__))
 
-db_path = "/etc/pki/pki-tomcat/alias"
+#db_path = "/etc/pki/pki-tomcat/alias"
+db_path = "/etc/pki/astra-ca/nssdb"
 
 def nss_db_init(func):
     """Инициализация базы данных NSS"""
@@ -73,11 +74,13 @@ def nss_db_init(func):
 
 
 @nss_db_init
-def get_nickname(issuer_id):
-    """По id сертификата найти его никнейм в базе данных NSS"""
+def get_nickname(uid=""):
+    """По uid сертификата найти его никнейм в базе данных NSS.
+    uid - уникальная строка, которая однозначно идентифицирует сертификат среди других никтеймов
+    """
     cert_nns = nss.get_cert_nicknames(cert_db, nss.SEC_CERT_NICKNAMES_USER)
     for nn in cert_nns:
-        if issuer_id in nn:
+        if uid in nn:
             return nn
     else: # никнейм корневого центра CN=Certificate Authority,O=TESTDOMAIN.TEST
         return "caSigningCert cert-pki-ca"
@@ -100,11 +103,19 @@ def get_cert_chain_pem(cert):
     #logger.debug("--- chain_der type: %s", type(chain_der)) # --- chain_der type: <class 'tuple'>
     chain_pem = []
     for der in chain_der:
-        pem = mod_ssl.cert_der2pem(der.der_data)
+        #-> pem = mod_ssl.cert_der2pem(der.der_data)
+        si_obj = nss.SecItem(der) #->
+        pem = si_obj.to_base64(pem_tipe="CERTIFICATE") #->
         chain_pem.append(pem)
     if len(chain_pem) == 0:
         raise ValueError("Пустая цепочка сертификатов")
     return chain_pem
+
+
+#->def get_cert_chain_pkcs7(cert, form="PEM"):
+#->    """Получить цепочку сертификатов PKCS#7 по заданному cert (id сертификата или объект сертификата) в формате form"""
+#->    pem_lst = get_cert_chain_pem(cert)
+#->    return cert_chain2pkcs7(cert_chain, form)
 
 def get_cert_chain_pkcs7(cert, form="DER"):
     """Получить цепочку сертификатов PKCS#7 по заданному id сертификата или по заданному объекту сертификата"""
