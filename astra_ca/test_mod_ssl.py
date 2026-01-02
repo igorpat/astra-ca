@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 
-import astra_ca.mod_ssl
-
+from .mod_ssl import *
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
-
+from cryptography.hazmat.primitives.serialization import pkcs7
 
 def test_get_email_from_subject():
     csr_pem=b"""-----BEGIN CERTIFICATE REQUEST-----
@@ -24,6 +23,49 @@ dvcK50LGurV67ZmQa5FNeTWYil9DcohDSmOnxiY9wlyxRnfVj6yeVwSiZpgTHtZo
 YwAt+Td85bC77N4fka1kZhO+YLwXlaOIJMOz8Yn4sGGlSxFBLbDmU3D1K98Vsptu
 0odwY8YQMwSZZGMEISd9tQMU9WghvEx3gtpPnwS9jgd5hmFw
 -----END CERTIFICATE REQUEST-----"""
+    csr_obj = get_csr_obj(csr_pem)
+    assert get_email_from_subject(csr_obj) == "ipauser02@testdomain.test"
 
-    csr_obj =  x509.load_pem_x509_csr(csr_pem, backend=default_backend())
-    assert astra_ca.mod_ssl.get_email_from_subject(csr_obj) == "ipauser02@testdomain.test"
+def test_pkcs7_subsystem():
+    cert_pem = """-----BEGIN CERTIFICATE-----
+MIIGZTCCBU2gAwIBAgIMU5dy4WTyd6boTQ35MA0GCSqGSIb3DQEBCwUAMFUxCzAJ
+BgNVBAYTAkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSswKQYDVQQDEyJH
+bG9iYWxTaWduIEdDQyBSNiBBbHBoYVNTTCBDQSAyMDI1MB4XDTI1MTExMjA4MDg1
+OVoXDTI2MTIxNDA4MDg1OFowHDEaMBgGA1UEAxMRd3d3LmFzdHJhbGludXgucnUw
+ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4vhR00NxeEthuZWLcuOlJ
+gBjUvnXlYJDfF3t4S8K9fnXqMcAOg5fPhSee9s181wdjY13WO24m0ErQwi2Xihbb
+JZQINWJpea14T/DgBD/l3O0uZ8PxBe4gtNYGpUT+0Ob34EcJ8b/yaGhVOsE89Kfg
+KVwSjvybmRHKcyiLkalIs6bAiknJvkBjaVyIxOe4NW/JN2D36QFg1k+kTTSie3oI
+jujjQ/OU4r7DSMsjjz5+3yKTgL6fc7GEoPMg2pGOTMBmuWd+K1w/omSqufXAU1YP
+TkAY1MU/oIoJcVxz9WuKxqFz9Tui/n/Z304w/j+nAgBWd9KMSKy0dF/Opsg0Zr2x
+AgMBAAGjggNsMIIDaDAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADCBmQYI
+KwYBBQUHAQEEgYwwgYkwSQYIKwYBBQUHMAKGPWh0dHA6Ly9zZWN1cmUuZ2xvYmFs
+c2lnbi5jb20vY2FjZXJ0L2dzZ2NjcjZhbHBoYXNzbGNhMjAyNS5jcnQwPAYIKwYB
+BQUHMAGGMGh0dHA6Ly9vY3NwLmdsb2JhbHNpZ24uY29tL2dzZ2NjcjZhbHBoYXNz
+bGNhMjAyNTBXBgNVHSAEUDBOMAgGBmeBDAECATBCBgorBgEEAaAyCgEDMDQwMgYI
+KwYBBQUHAgEWJmh0dHBzOi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkv
+MEQGA1UdHwQ9MDswOaA3oDWGM2h0dHA6Ly9jcmwuZ2xvYmFsc2lnbi5jb20vZ3Nn
+Y2NyNmFscGhhc3NsY2EyMDI1LmNybDArBgNVHREEJDAighF3d3cuYXN0cmFsaW51
+eC5ydYINYXN0cmFsaW51eC5ydTAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUH
+AwIwHwYDVR0jBBgwFoAUxbSTj28r3B5Iv7cQMIXO0bK7SC0wHQYDVR0OBBYEFOsl
+DWVMh5xdF5ZCmBjyWIAPQ3o8MIIBfwYKKwYBBAHWeQIEAgSCAW8EggFrAWkAdwCU
+TkOH+uzB74HzGSQmqBhlAcfTXzgCAT9yZ31VNy4Z2AAAAZp3HGtqAAAEAwBIMEYC
+IQCA2NUsh+wENVaULZZDHf18IwYrEoPQmOrPDzmd5CitbQIhAMjDrcIYkNwUZvpi
+hCp7l8ORF+Iw6W+XnEqbgy4ye+xtAHYAyzj3FYl8hKFEX1vB3fvJbvKaWc1HCmkF
+hbDLFMMUWOcAAAGadxxrdgAABAMARzBFAiEAnbt3sZr+BTSBTQS/Kcki3Bhhrc3m
+daqp+vuZnQ5uOxACIBunKPErLpUQFGdrhEik4oJ1p+K1ZWrHZpyVqX5GUvWZAHYA
+wjF+V0UZo0XufzjespBB68fCIVoiv3/Vta12mtkOUs0AAAGadxxrZQAABAMARzBF
+AiEA4ZnCrm/q2mXA2NmRy/FXBmpiw5k/NZaSvIuxHII9+kYCIAQkbzrqkQv+2qWq
+jC36fBrs6mdFi8Y4mwy+27NUyG5AMA0GCSqGSIb3DQEBCwUAA4IBAQCXdoq11Vd6
+w907KlzFjs1cHzm2VONyi1JeWuL2loLOUHCjmn9w8JBZYByaKbKihdyKl0HueAc5
+YmwFAyP+WKCoFDW1ai6xNl+oXtF+QhEnzIcGpHT2p8iIao42Asii1m957iOiSpTw
+F+uYf8cBEwxckXjduy6m69murXC1JuPTrrkU6u4cdeNnbjCflhKYwkcAYlPfijDs
+Pv3c80mwLx56eNfCuPpF+taSqCWsd6MSeY7oygC1cIxs+7WvJgdm/WlOU6C2KVGG
+1uF/RfoZVdWSduYpoN+wgi9wNacFE0FuqzFHyosA41KpCcTIRRcON6BFWhRfJY1O
+JwiiFu2z9NLa
+-----END CERTIFICATE-----
+"""
+    cert_obj = get_cert_obj(cert_pem, form="PEM")
+    p7_pem = cert_chain2pkcs7([cert_obj], form="PEM")
+    revert_cert_obj = pkcs7.load_pem_pkcs7_certificates(p7_pem)
+    assert cert_obj == revert_cert_obj[0]

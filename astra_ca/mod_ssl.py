@@ -20,20 +20,20 @@ logger = logging.getLogger(os.path.basename(__file__))
 #->    return cert_x509.public_bytes(serialization.Encoding.PEM)
 
 
-#->def cert_chain2pkcs7(cert_chain, outform="PEM"):
-#->"""Закодировать цепочку сертификатов в формат PKCS#7 (PEM и DER)"""
-#->    if form == "PEM":
-#->        return pkcs7.serialize_certificates(cert_chain, serialization.Encoding.PEM) # b'-----BEGIN PKCS7-----\nMIIGlAYJK ...
-#->    elif form == "DER":
-#->        return pkcs7.serialize_certificates(cert_chain, serialization.Encoding.DER)
-#->    else:
-#->        raise ValueError("Аргумент form должен иметь значение 'PEM' или 'DER'")
+def cert_chain2pkcs7(cert_obj_chain, form="PEM"):
+    """Закодировать цепочку сертификатов в формат PKCS#7 (PEM и DER)"""
+    if form == "PEM":
+        return pkcs7.serialize_certificates(cert_obj_chain, serialization.Encoding.PEM) # b'-----BEGIN PKCS7-----\nMIIGlAYJK ...
+    elif form == "DER":
+        return pkcs7.serialize_certificates(cert_obj_chain, serialization.Encoding.DER)
+    else:
+        raise ValueError("Аргумент form должен иметь значение 'PEM' или 'DER'")
 
 def get_csr_obj(pem):
     """ Получить объект запроса на сертификат"""
     if type(pem) is str:
         pem = pem.encode()
-    return x509.load_pem_x509_csr(pem,  backend=default_backend())
+    return x509.load_pem_x509_csr(pem, backend=default_backend())
 
 def csr_pem2der(pem):
     """Конвертировать запрос на выпуск сертификата из формата PEM в DER"""
@@ -49,11 +49,17 @@ def get_cert_key_len(der):
     pk = cert_x509.public_key()
     return pk.key_size
 
-def get_cert_obj(der):
+def get_cert_obj(data, form="DER"):
     """Возвращает объект класса cryptography.x509.Certificate"""
-    cert_x509 = x509.load_der_x509_certificate(der, backend=default_backend())
-    return cert_x509
-
+    if type(data) is str:
+        data = data.encode()
+    if form == "DER":
+        cert_obj = x509.load_der_x509_certificate(data, backend=default_backend())
+    elif form == "PEM":
+        cert_obj = x509.load_pem_x509_certificate(data, backend=default_backend())
+    else:
+        raise ValueError("Аргумент form должен иметь значение 'PEM' или 'DER'")
+    return cert_obj
 
 def get_public_bytes(obj, form="PEM"):
     """Возвращает сеариализированный объект"""
